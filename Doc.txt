@@ -1,0 +1,4 @@
+beego views: https://beego.me/docs/quickstart/new.md
+go-jwt views: https://github.com/go-jwt
+mysql views: https://github.com/go-sql-driver/mysql
+redis views: https://github.com/go-redis/redis

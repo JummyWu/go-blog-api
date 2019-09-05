@@ -34,8 +34,9 @@ func (c *NewPost) Post() {
 		title := c.GetString("title")
 		po := models.Post{Title: title}
 		error := o.Read(&po, "Title")
-		if error == orm.ErrNoRows {
+		if error != orm.ErrNoRows {
 			c.Data["json"] = models.Message{Code: 301, Result: "已经有这个文章", Data: &po}
+			c.ServeJSON()
 		}
 		tid, err := c.GetInt("tid")
 		desc := c.GetString("desc")
@@ -43,7 +44,7 @@ func (c *NewPost) Post() {
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
-		post := models.Post{}
+		post := new(models.Post)
 		pid, err := uuid.NewV4()
 		if err != nil {
 			logs.Info(err)
@@ -62,6 +63,7 @@ func (c *NewPost) Post() {
 		post.Time = time.Now()
 		logs.Info(o.Insert(post))
 		c.Data["json"] = models.Message{Code: 200, Result: "添加文章成功", Data: post}
+		c.ServeJSON()
 	}
 }
 
@@ -204,7 +206,11 @@ func (c *PostController) Get() {
 	}
 	o := orm.NewOrm()
 	post := models.Post{Id: id}
-	logs.Info(o.Read(&post, "Id"))
+	error := o.Read(&post, "Id")
+	if error == orm.ErrNoRows {
+		c.Data["json"] = models.Message{Code: 301, Result: "没有这篇文章", Data: nil}
+		c.ServeJSON()
+	}
 	if is == "admin" {
 		c.Data["json"] = models.Message{Code: 200, Result: "管理员看文章", Data: post}
 		c.ServeJSON()

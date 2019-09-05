@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/astaxie/beego/orm"
+
 	"github.com/astaxie/beego/logs"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -72,5 +74,35 @@ func GetUID(tokenStr string) string {
 		return uid.(string)
 	} else {
 		return ""
+	}
+}
+
+/*
+IsAdmin 验证是否为管理员
+*/
+func IsAdmin(tokenStr string) (string, bool) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["uid"])
+		}
+		hmac := []byte("wujianheng")
+		return hmac, nil
+	})
+	if err != nil {
+		logs.Info(err)
+		return "", false
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		uid := claims["uid"]
+		user := User{Uid: uid.(string)}
+		o := orm.NewOrm()
+		logs.Info(o.Read(&user, "Uid"))
+		if user.IsAdmin == 1 {
+			return user.Uid, true
+		} else {
+			return "", false
+		}
+	} else {
+		return "", false
 	}
 }

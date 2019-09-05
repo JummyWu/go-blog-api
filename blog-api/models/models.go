@@ -20,18 +20,19 @@ type Category struct {
 Post ID, 文章的UID, 文章的标题, 文章的简介, 文章的标签, 文章的分类, 文章的头图, 阅读量, 点赞数, 正文, markdown, 时间
 */
 type Post struct {
-	Id       int
-	Uid      string
-	Title    string
-	Desc     string
-	Tid      int
-	Category int
-	Image    string
-	Pv       int
-	Likes    int
-	Content  string `orm:"type(text)"`
-	Markdown string `prm:"type(text)"`
-	Time     time.Time
+	Id         int
+	Uid        string
+	Title      string
+	Desc       string
+	Tid        int
+	CategoryId int
+	Image      string
+	Pv         int
+	Likes      int
+	Content    string `orm:"type(text)"`
+	Markdown   string `prm:"type(text)"`
+	UserId     string
+	Time       time.Time
 }
 
 /*

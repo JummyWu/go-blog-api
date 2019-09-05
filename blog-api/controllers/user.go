@@ -5,6 +5,8 @@ import (
 	"go-blog-api/blog-api/models"
 	"go-blog-api/blog-api/util"
 
+	"github.com/astaxie/beego/orm"
+
 	"github.com/astaxie/beego/logs"
 
 	"github.com/astaxie/beego"
@@ -18,7 +20,7 @@ type UserGitHub struct {
 }
 
 /*
-Get http;//localhost:8001/github/restgie/
+Get github/restgie/
 */
 func (c *UserGitHub) Get() {
 	code := c.GetString("code")
@@ -43,4 +45,62 @@ func (c *UserGitHub) Get() {
 	}
 	c.Data["json"] = models.Message{Code: 200, Result: "获取用户信息成功", Data: user}
 	c.ServeJSON()
+}
+
+/*
+UpdatePassword 修改密码
+*/
+type UpdatePassword struct {
+	beego.Controller
+}
+
+/*
+Put update/password
+*/
+func (c *UpdatePassword) Put() {
+	token := c.Ctx.Request.Header.Get("token")
+	uid := models.GetUID(token)
+	pard := c.GetString("password")
+	o := orm.NewOrm()
+	user := models.User{Uid: uid}
+	err := o.Read(&user, "Uid")
+	if err == orm.ErrNoRows {
+		logs.Info(err)
+		c.Data["json"] = models.Message{Code: 200, Result: "没有这个用户", Data: nil}
+		c.ServeJSON()
+	}
+	password, err := models.Encrypt(pard)
+	if err != nil {
+		logs.Info(err)
+		c.Data["json"] = models.Message{Code: 301, Result: "加密错误", Data: nil}
+		c.ServeJSON()
+	}
+	user.Password = password
+	logs.Info(o.Update(&user, "Password"))
+	c.Data["json"] = models.Message{Code: 200, Result: "修改成功", Data: nil}
+	c.ServeJSON()
+}
+
+/*
+Logout 退出登陆
+*/
+type Logout struct {
+	beego.Controller
+}
+
+/*
+Post /user/post
+*/
+func (c *Logout) Post() {
+	token := c.Ctx.Request.Header.Get("token")
+	uid := models.GetUID(token)
+	o := orm.NewOrm()
+	user := models.User{Uid: uid}
+	err := o.Read(&user, "Uid")
+	if err == orm.ErrNoRows {
+		logs.Info(err)
+		c.Data["json"] = models.Message{Code: 200, Result: "没有这个用户", Data: nil}
+		c.ServeJSON()
+	}
+	c.Data["json"] = models.Message{Code: 200, Result: "已经退出", Data: nil}
 }

@@ -11,9 +11,10 @@ import (
 Category ID, 分类名字, 时间
 */
 type Category struct {
-	Id   int
-	Name string
-	Time time.Time
+	Id     int
+	Name   string
+	UserId string
+	Time   time.Time
 }
 
 /*
@@ -30,7 +31,7 @@ type Post struct {
 	Pv         int
 	Likes      int
 	Content    string `orm:"type(text)"`
-	Markdown   string `prm:"type(text)"`
+	Markdown   string `orm:"type(text)"`
 	UserId     string
 	Time       time.Time
 }
@@ -39,9 +40,10 @@ type Post struct {
 Tag ID, 标签名, 时间
 */
 type Tag struct {
-	ID   int
-	Name string
-	Time time.Time
+	Id     int
+	Name   string
+	UserId string
+	Time   time.Time
 }
 
 /*

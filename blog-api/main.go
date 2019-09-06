@@ -41,5 +41,6 @@ func main() {
 
 	beego.InsertFilter("/api/post/**", beego.BeforeExec, filterAdmin)
 	beego.InsertFilter("/api/tag/**", beego.BeforeExec, filterAdmin)
+	beego.InsertFilter("/api/links/**", beego.BeforeExec, filterAdmin)
 	beego.Run()
 }

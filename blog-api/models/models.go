@@ -8,32 +8,21 @@ import (
 )
 
 /*
-Category ID, 分类名字, 时间
-*/
-type Category struct {
-	Id     int
-	Name   string
-	UserId string
-	Time   time.Time
-}
-
-/*
 Post ID, 文章的UID, 文章的标题, 文章的简介, 文章的标签, 文章的分类, 文章的头图, 阅读量, 点赞数, 正文, markdown, 时间
 */
 type Post struct {
-	Id         int
-	Uid        string
-	Title      string
-	Desc       string
-	Tid        int
-	CategoryId int
-	Image      string
-	Pv         int
-	Likes      int
-	Content    string `orm:"type(text)"`
-	Markdown   string `orm:"type(text)"`
-	UserId     string
-	Time       time.Time
+	Id       int
+	Uid      string
+	Title    string
+	Desc     string
+	Tid      int
+	Image    string
+	Pv       int
+	Likes    int
+	Content  string `orm:"type(text)"`
+	Markdown string `orm:"type(text)"`
+	UserId   string
+	Time     time.Time
 }
 
 /*
@@ -65,8 +54,23 @@ type User struct {
 	Time     time.Time
 }
 
+/*
+Links Uid 站长邮箱 网站名字 网站的图片 网站链接 网站介绍 时间
+*/
+type Links struct {
+	Id        int
+	Uid       string
+	Is        int
+	Email     string
+	HostName  string
+	HostImage string
+	HostUrl   string
+	Body      string `orm:"type(text)"`
+	Time      time.Time
+}
+
 func init() {
-	orm.RegisterModel(new(User), new(Post), new(Tag), new(Category))
+	orm.RegisterModel(new(User), new(Post), new(Tag), new(Links))
 	re := orm.RunSyncdb("default", false, true)
 	logs.Info(re)
 	logs.Info("创建数据表成功")

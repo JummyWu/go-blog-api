@@ -40,7 +40,6 @@ func (c *NewPost) Post() {
 		}
 		tid, err := c.GetInt("tid")
 		desc := c.GetString("desc")
-		categoryID, err := c.GetInt("categoryId")
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
@@ -55,7 +54,6 @@ func (c *NewPost) Post() {
 		post.UserId = uid
 		post.Desc = desc
 		post.Image = image
-		post.CategoryId = categoryID
 		post.Markdown = markdown
 		post.Content = content
 		post.Likes = 0
@@ -95,7 +93,6 @@ func (c *UpdatePost) Put() {
 		title := c.GetString("title")
 		tid, err := c.GetInt("tid")
 		desc := c.GetString("desc")
-		categoryID, err := c.GetInt("categoryId")
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
@@ -107,7 +104,6 @@ func (c *UpdatePost) Put() {
 		post.UserId = uid
 		post.Desc = desc
 		post.Image = image
-		post.CategoryId = categoryID
 		post.Markdown = markdown
 		post.Content = content
 		logs.Info(o.Update(&post))

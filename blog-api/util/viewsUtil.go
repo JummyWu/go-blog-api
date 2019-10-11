@@ -55,3 +55,16 @@ func TagToView(c models.Tag, user models.UserView) *models.TagView {
 	tagView.UserView = user
 	return tagView
 }
+
+/*
+CategoryView : category 转 categoryView
+*/
+func CategoryToView(c models.Category, user models.UserView) *models.CategoryView {
+	categoryView := new(models.CategoryView)
+	categoryView.Id = c.Id
+	categoryView.Name = c.Name
+	categoryView.Time = c.Time
+	categoryView.UserId = c.UserId
+	categoryView.UserView = user
+	return categoryView
+}

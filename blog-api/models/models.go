@@ -95,8 +95,19 @@ type CommentReply struct {
 	Time      time.Time
 }
 
+/*
+Category : ID UUID 用户的ID 分类名 时间
+*/
+type Category struct {
+	Id     int
+	Uid    string
+	UserId string
+	Name   string
+	Time   time.Time
+}
+
 func init() {
-	orm.RegisterModel(new(User), new(Post), new(Tag), new(Links), new(Comment), new(CommentReply))
+	orm.RegisterModel(new(User), new(Post), new(Tag), new(Links), new(Comment), new(CommentReply), new(Category))
 	re := orm.RunSyncdb("default", false, true)
 	logs.Info(re)
 	logs.Info("创建数据表成功")

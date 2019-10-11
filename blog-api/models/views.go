@@ -41,3 +41,12 @@ type UserView struct {
 	Location string    `json:"location"`
 	Time     time.Time `json:"time"`
 }
+
+//CategoryView : 分类列表
+type CategoryView struct {
+	Id       int       `json:"id"`
+	Name     string    `json:"name"`
+	UserId   string    `json:"userId"`
+	UserView UserView  `json:"user"`
+	Time     time.Time `json:"time"`
+}

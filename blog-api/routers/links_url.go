@@ -7,9 +7,9 @@ import (
 )
 
 func init() {
-	beego.Router("/api/links/add_links", &controllers.NewLinks{})
-	beego.Router("/api/links/update_links", &controllers.UpdateLinkes{})
-	beego.Router("/api/links/update_status", &controllers.UpdateStatus{})
-	beego.Router("/api/links/delete_links", &controllers.DeleteLinks{})
-	beego.Router("/api/links_list", &controllers.GetLinks{})
+	beego.Router("/api/links/add_links", &controllers.LikesController{})
+	beego.Router("/api/links/update_links", &controllers.LikesController{})
+	beego.Router("/api/links/update_status", &controllers.LikesController{})
+	beego.Router("/api/links/delete_links", &controllers.LikesController{})
+	beego.Router("/api/links_list", &controllers.LikesController{})
 }

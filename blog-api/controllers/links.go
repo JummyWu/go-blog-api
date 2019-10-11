@@ -12,16 +12,27 @@ import (
 )
 
 /*
-NewLinks 添加友联
+LikesController 友联代理
 */
-type NewLinks struct {
+type LikesController struct {
 	beego.Controller
+}
+
+/*
+URLMapping 代理全部URL
+*/
+func (c *LikesController) URLMapping() {
+	c.Mapping("NewLinks", c.Post)
+	c.Mapping("UpdateLinkes", c.Put)
+	c.Mapping("UpdateStatus", c.PutStatus)
+	c.Mapping("DeleteLinks", c.Delete)
+	c.Mapping("GetLinks", c.Get)
 }
 
 /*
 Post /api/links/add_links
 */
-func (c *NewLinks) Post() {
+func (c *LikesController) Post() {
 	token := c.Ctx.Request.Header.Get("token")
 	_, isAdmin := models.IsAdmin(token)
 	if isAdmin == false {
@@ -60,16 +71,9 @@ func (c *NewLinks) Post() {
 }
 
 /*
-UpdateLinkes 更新友联的资料
-*/
-type UpdateLinkes struct {
-	beego.Controller
-}
-
-/*
 Put /api/links/update_links
 */
-func (c *UpdateLinkes) Put() {
+func (c *LikesController) Put() {
 	token := c.Ctx.Request.Header.Get("token")
 	_, isAdmin := models.IsAdmin(token)
 	if isAdmin == false {
@@ -115,16 +119,9 @@ func (c *UpdateLinkes) Put() {
 }
 
 /*
-UpdateStatus 修改上下线的状态
+PutStatus /api/links/update_status
 */
-type UpdateStatus struct {
-	beego.Controller
-}
-
-/*
-Put /api/links/update_status
-*/
-func (c *UpdateStatus) Put() {
+func (c *LikesController) PutStatus() {
 	token := c.Ctx.Request.Header.Get("token")
 	_, isAdmin := models.IsAdmin(token)
 	if isAdmin == false {
@@ -151,16 +148,9 @@ func (c *UpdateStatus) Put() {
 }
 
 /*
-DeleteLinks 删除友联
-*/
-type DeleteLinks struct {
-	beego.Controller
-}
-
-/*
 Delete /api/links/delete_links
 */
-func (c *DeleteLinks) Delete() {
+func (c *LikesController) Delete() {
 	token := c.Ctx.Request.Header.Get("token")
 	_, isAdmin := models.IsAdmin(token)
 	if isAdmin == false {
@@ -182,16 +172,9 @@ func (c *DeleteLinks) Delete() {
 }
 
 /*
-GetLinks 获取友联
-*/
-type GetLinks struct {
-	beego.Controller
-}
-
-/*
 Get /api/links_list
 */
-func (c *GetLinks) Get() {
+func (c *LikesController) Get() {
 	var links []*models.Links
 	o := orm.NewOrm()
 	number, err := o.QueryTable("links").OrderBy("-Id").Filter("is", 1).All(&links)

@@ -69,8 +69,34 @@ type Links struct {
 	Time      time.Time
 }
 
+/*
+Comment id 评论的UID 评论人UID  评论文章 点赞数 正文 时间
+*/
+type Comment struct {
+	Id     int
+	Uid    string
+	UserId string
+	PostId string
+	Thumbs int
+	Body   string
+	Time   time.Time
+}
+
+/*
+CommentReply ID 回复评论的UID 用户ID 上级评论的UID 点赞数 正文 时间
+*/
+type CommentReply struct {
+	Id        int
+	Uid       string
+	UserId    string
+	CommentId string
+	Thumbs    int
+	Body      string
+	Time      time.Time
+}
+
 func init() {
-	orm.RegisterModel(new(User), new(Post), new(Tag), new(Links))
+	orm.RegisterModel(new(User), new(Post), new(Tag), new(Links), new(Comment), new(CommentReply))
 	re := orm.RunSyncdb("default", false, true)
 	logs.Info(re)
 	logs.Info("创建数据表成功")

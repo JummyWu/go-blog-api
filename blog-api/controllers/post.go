@@ -221,6 +221,8 @@ func (c *PostController) Get() {
 	if err != nil {
 		logs.Info(err)
 	}
+	var tag models.Tag
+	var user models.User
 	o := orm.NewOrm()
 	post := models.Post{Id: id}
 	error := o.Read(&post, "Id")
@@ -228,13 +230,26 @@ func (c *PostController) Get() {
 		c.Data["json"] = models.Message{Code: 301, Result: "没有这篇文章", Data: nil}
 		c.ServeJSON()
 	}
+	_, err = o.QueryTable("user").Filter("uid", &post.UserId).All(&user)
+	if err != nil {
+		logs.Info(err)
+	}
+	userView := util.UserToViews(user)
+
+	_, err = o.QueryTable("tag").Filter("id", &post.Tid).All(&tag)
+	if err != nil {
+		logs.Info(err)
+	}
+	tagView := util.TagToView(tag, *userView)
+
+	postView := util.PostToViews(&post, *userView, *tagView)
 	if is == "admin" {
-		c.Data["json"] = models.Message{Code: 200, Result: "管理员看文章", Data: post}
+		c.Data["json"] = models.Message{Code: 200, Result: "管理员看文章", Data: postView}
 		c.ServeJSON()
 	} else {
 		post.Pv++
 		logs.Info(o.Update(&post))
-		c.Data["json"] = models.Message{Code: 200, Result: "用户看文章", Data: post}
+		c.Data["json"] = models.Message{Code: 200, Result: "用户看文章", Data: postView}
 		c.ServeJSON()
 	}
 }

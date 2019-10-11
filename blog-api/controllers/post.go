@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"go-blog-api/blog-api/models"
+	"go-blog-api/blog-api/util"
+
 	"strconv"
 	"time"
 
@@ -169,45 +171,20 @@ func (c *PostList) Get() {
 		logs.Info(err)
 	}
 	for _, v := range posts {
-		_, err := o.QueryTable("tag").Filter("id", v.Tid).All(&tag)
-		if err != nil {
-			logs.Info(err)
-		}
-		var tagView models.TagView
-		tagView.Id = tag.Id
-		tagView.Name = tag.Name
-		tagView.UserId = tag.UserId
-		tagView.Time = tag.Time
 
 		_, err = o.QueryTable("user").Filter("uid", v.UserId).All(&user)
 		if err != nil {
 			logs.Info(err)
 		}
-		var userView models.UserView
-		userView.Id = user.Id
-		userView.Username = user.Username
-		userView.GitPath = user.GitPath
-		userView.Blog = user.Blog
-		userView.Email = user.Email
+		userView := util.UserToViews(user)
 
-		postView := new(models.PostView)
-		postView.Id = v.Id
-		postView.Image = v.Image
-		postView.Likes = v.Likes
-		postView.Markdown = v.Markdown
-		postView.Pv = v.Pv
-		postView.TagView = tagView
-		postView.Time = v.Time
-		postView.Title = v.Title
-		postView.Uid = v.Uid
-		postView.UserId = v.UserId
-		postView.Content = v.Content
-		postView.Desc = v.Desc
-		postView.UserView = userView
-
+		_, err := o.QueryTable("tag").Filter("id", v.Tid).All(&tag)
+		if err != nil {
+			logs.Info(err)
+		}
+		tagView := util.TagToView(tag, *userView)
+		postView := util.PostToViews(v, *userView, *tagView)
 		postViews = append(postViews, postView)
-		// po := []models.PostView{postView}
-		// postViews := append(po)
 	}
 	if int(num) < size {
 		next := "无"

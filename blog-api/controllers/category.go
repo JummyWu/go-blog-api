@@ -39,7 +39,7 @@ func (c *NewCategory) Post() {
 		category.Time = time.Now()
 		logs.Info(o.Insert(category))
 		var user models.User
-		_, err = o.QueryTable("user").Filter("Uid", uid).All(user)
+		_, err = o.QueryTable("user").Filter("Uid", uid).All(&user)
 		if err != nil {
 			logs.Info(nil)
 		}
@@ -64,7 +64,7 @@ func (c *UpdateCategory) Put() {
 		c.Data["json"] = models.Message{Code: 301, Result: "你不是超级管理员", Data: nil}
 		c.ServeJSON()
 	} else {
-		categoryId := c.GetString("categoryId")
+		categoryId := c.GetString("category_id")
 		category := models.Category{Uid: categoryId}
 		o := orm.NewOrm()
 		err := o.Read(&category, "Uid")
@@ -102,7 +102,7 @@ func (c *DeleteCategory) Delete() {
 		c.Data["json"] = models.Message{Code: 301, Result: "你不是超级管理员", Data: nil}
 		c.ServeJSON()
 	} else {
-		categoryId := c.GetString("categoryId")
+		categoryId := c.GetString("category_id")
 		category := models.Category{Uid: categoryId}
 		o := orm.NewOrm()
 		err := o.Read(&category, "Uid")
@@ -155,10 +155,10 @@ Get /api/category/:id([0-9]+)
 category_[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}
 */
 func (c *CategoryPost) Get() {
-	str := c.GetString("categoryId")
+	str := c.Ctx.Input.Param("category_id")
 	o := orm.NewOrm()
 	category := models.Category{Uid: str}
-	error := o.Read(&category, "CategoryId")
+	error := o.Read(&category, "Uid")
 	if error == orm.ErrNoRows {
 		c.Data["json"] = models.Message{Code: 301, Result: "分类下没有文章", Data: nil}
 		c.ServeJSON()

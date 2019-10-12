@@ -62,6 +62,7 @@ CategoryView : category 转 categoryView
 func CategoryToView(c models.Category, user models.UserView) *models.CategoryView {
 	categoryView := new(models.CategoryView)
 	categoryView.Id = c.Id
+	categoryView.Uid = c.Uid
 	categoryView.Name = c.Name
 	categoryView.Time = c.Time
 	categoryView.UserId = c.UserId

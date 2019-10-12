@@ -45,6 +45,7 @@ type UserView struct {
 //CategoryView : 分类列表
 type CategoryView struct {
 	Id       int       `json:"id"`
+	Uid      string    `json:"uid"`
 	Name     string    `json:"name"`
 	UserId   string    `json:"userId"`
 	UserView UserView  `json:"user"`

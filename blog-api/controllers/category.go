@@ -115,3 +115,77 @@ func (c *DeleteCategory) Delete() {
 		c.ServeJSON()
 	}
 }
+
+//CategoryList 查询所有的分类
+type CategoryList struct {
+	beego.Controller
+}
+
+//Get /api/category/list
+func (c *CategoryList) Get() {
+	var categorys []models.Category
+	var categoryViews []*models.CategoryView
+	o := orm.NewOrm()
+	_, err := o.QueryTable("category").OrderBy("-Id").All(&categorys)
+	if err != nil {
+		logs.Info(err)
+	}
+	for _, v := range categorys {
+		var user models.User
+		_, err = o.QueryTable("user").Filter("Uid", v.UserId).All(&user)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		categoryView := util.CategoryToView(v, *userView)
+
+		categoryViews = append(categoryViews, categoryView)
+	}
+	c.Data["json"] = models.Message{Code: 200, Result: "ok", Data: categoryViews}
+	c.ServeJSON()
+}
+
+//CategoryPost 获取分类下的文章
+type CategoryPost struct {
+	beego.Controller
+}
+
+/*
+Get /api/category/:id([0-9]+)
+category_[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}
+*/
+func (c *CategoryPost) Get() {
+	str := c.GetString("categoryId")
+	o := orm.NewOrm()
+	category := models.Category{Uid: str}
+	error := o.Read(&category, "CategoryId")
+	if error == orm.ErrNoRows {
+		c.Data["json"] = models.Message{Code: 301, Result: "分类下没有文章", Data: nil}
+		c.ServeJSON()
+	}
+	var posts []*models.Post
+	_, err := o.QueryTable("post").OrderBy("-Id").Filter("categoryId__icontains", &category.Uid).All(&posts)
+	if err != nil {
+		logs.Info(err)
+	}
+	var user models.User
+	var tag models.Tag
+	var postsViews []*models.PostView
+	for _, v := range posts {
+		_, err = o.QueryTable("user").Filter("uid", v.UserId).All(&user)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		_, err := o.QueryTable("tag").Filter("id", v.Tid).All(&tag)
+		if err != nil {
+			logs.Info(err)
+		}
+		tagView := util.TagToView(tag, *userView)
+		postView := util.PostToViews(v, *userView, *tagView)
+
+		postsViews = append(postsViews, postView)
+	}
+	c.Data["json"] = models.Message{Code: 200, Result: "成功", Data: postsViews}
+	c.ServeJSON()
+}

@@ -4,18 +4,19 @@ import "time"
 
 // PostView : 文章展示列表
 type PostView struct {
-	Id       int       `json:"id"`
-	Uid      string    `json:"uid"`
-	Title    string    `json:"title"`
-	Desc     string    `json:"desc"`
-	Image    string    `json:"image"`
-	Pv       int       `json:"pv"`
-	Likes    int       `json:"likes"`
-	Content  string    `json:"content"`
-	Markdown string    `json:"markdown"`
-	Time     time.Time `json:"time"`
-	TagView  TagView   `json:"tag"`
-	UserView UserView  `json:"user"`
+	Id           int          `json:"id"`
+	Uid          string       `json:"uid"`
+	Title        string       `json:"title"`
+	Desc         string       `json:"desc"`
+	Image        string       `json:"image"`
+	Pv           int          `json:"pv"`
+	Likes        int          `json:"likes"`
+	Content      string       `json:"content"`
+	Markdown     string       `json:"markdown"`
+	Time         time.Time    `json:"time"`
+	TagView      TagView      `json:"tag"`
+	UserView     UserView     `json:"user"`
+	CategoryView CategoryView `json:"category"`
 }
 
 //TagView : 便签展示列表

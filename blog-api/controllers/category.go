@@ -181,8 +181,10 @@ func (c *CategoryPost) Get() {
 		if err != nil {
 			logs.Info(err)
 		}
+		categoryView := util.CategoryToView(category, *userView)
+
 		tagView := util.TagToView(tag, *userView)
-		postView := util.PostToViews(v, *userView, *tagView)
+		postView := util.PostToViews(v, *userView, *tagView, *categoryView)
 
 		postsViews = append(postsViews, postView)
 	}

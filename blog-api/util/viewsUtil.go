@@ -26,7 +26,7 @@ func UserToViews(c models.User) *models.UserView {
 /*
 PostToViews : 文章转换类
 */
-func PostToViews(c *models.Post, user models.UserView, tag models.TagView) *models.PostView {
+func PostToViews(c *models.Post, user models.UserView, tag models.TagView, category models.CategoryView) *models.PostView {
 	postView := new(models.PostView)
 	postView.Id = c.Id
 	postView.Uid = c.Uid
@@ -40,6 +40,7 @@ func PostToViews(c *models.Post, user models.UserView, tag models.TagView) *mode
 	postView.Time = c.Time
 	postView.UserView = user
 	postView.TagView = tag
+	postView.CategoryView = category
 	return postView
 }
 

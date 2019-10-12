@@ -45,6 +45,7 @@ func (c *NewPost) Post() {
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
+		category_id := c.GetString("category_id")
 		post := new(models.Post)
 		pid, err := uuid.NewV4()
 		if err != nil {
@@ -61,8 +62,26 @@ func (c *NewPost) Post() {
 		post.Likes = 0
 		post.Pv = 0
 		post.Time = time.Now()
+		post.CategoryId = category_id
 		logs.Info(o.Insert(post))
-		c.Data["json"] = models.Message{Code: 200, Result: "添加文章成功", Data: post}
+		var user models.User
+		var category models.Category
+		var tag models.Tag
+
+		_, err = o.QueryTable("User").Filter("Uid", uid).All(&user)
+		userView := util.UserToViews(user)
+
+		_, err = o.QueryTable("Category").Filter("Uid", category_id).All(&category)
+		categoryView := util.CategoryToView(category, *userView)
+
+		_, err = o.QueryTable("Tag").Filter("Uid", tid).All(&tag)
+		if err != nil {
+			logs.Info(err)
+		}
+		tagView := util.TagToView(tag, *userView)
+		postView := util.PostToViews(post, *userView, *tagView, *categoryView)
+
+		c.Data["json"] = models.Message{Code: 200, Result: "添加文章成功", Data: postView}
 		c.ServeJSON()
 	}
 }
@@ -98,6 +117,7 @@ func (c *UpdatePost) Put() {
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
+		categoryID := c.GetString("category_id")
 		if err != nil {
 			logs.Info(err)
 		}
@@ -108,8 +128,24 @@ func (c *UpdatePost) Put() {
 		post.Image = image
 		post.Markdown = markdown
 		post.Content = content
+		post.CategoryId = categoryID
 		logs.Info(o.Update(&post))
-		c.Data["json"] = models.Message{Code: 200, Result: "修改成功", Data: &post}
+
+		var user models.User
+		var tag models.Tag
+		var category models.Category
+		_, err = o.QueryTable("user").Filter("Uid", uid).All(&user)
+		_, err = o.QueryTable("tag").Filter("Uid", tid).All(&tag)
+		_, err = o.QueryTable("category").Filter("Uid", categoryID).All(&category)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		tagView := util.TagToView(tag, *userView)
+		categoryView := util.CategoryToView(category, *userView)
+		postView := util.PostToViews(&post, *userView, *tagView, *categoryView)
+
+		c.Data["json"] = models.Message{Code: 200, Result: "修改成功", Data: &postView}
 		c.ServeJSON()
 	}
 }
@@ -161,6 +197,7 @@ func (c *PostList) Get() {
 	var posts []*models.Post
 	var tag models.Tag
 	var user models.User
+	var category models.Category
 	var postViews []*models.PostView
 	size, err := c.GetInt("size")
 	str := c.Ctx.Input.Param(":id")
@@ -183,7 +220,13 @@ func (c *PostList) Get() {
 			logs.Info(err)
 		}
 		tagView := util.TagToView(tag, *userView)
-		postView := util.PostToViews(v, *userView, *tagView)
+
+		_, err = o.QueryTable("Category").Filter("Uid", v.CategoryId).All(&category)
+		if err != nil {
+			logs.Info(err)
+		}
+		categoryView := util.CategoryToView(category, *userView)
+		postView := util.PostToViews(v, *userView, *tagView, *categoryView)
 		postViews = append(postViews, postView)
 	}
 	if int(num) < size {
@@ -223,6 +266,7 @@ func (c *PostController) Get() {
 	}
 	var tag models.Tag
 	var user models.User
+	var category models.Category
 	o := orm.NewOrm()
 	post := models.Post{Id: id}
 	error := o.Read(&post, "Id")
@@ -242,7 +286,13 @@ func (c *PostController) Get() {
 	}
 	tagView := util.TagToView(tag, *userView)
 
-	postView := util.PostToViews(&post, *userView, *tagView)
+	_, err = o.QueryTable("category").Filter("Uid", &post.CategoryId).All(&category)
+	if err != nil {
+		logs.Info(err)
+	}
+	categoryView := util.CategoryToView(category, *userView)
+
+	postView := util.PostToViews(&post, *userView, *tagView, *categoryView)
 	if is == "admin" {
 		c.Data["json"] = models.Message{Code: 200, Result: "管理员看文章", Data: postView}
 		c.ServeJSON()

@@ -88,3 +88,30 @@ func (c *UpdateCategory) Put() {
 		c.ServeJSON()
 	}
 }
+
+//DeleteCategory 删除文章
+type DeleteCategory struct {
+	beego.Controller
+}
+
+//Delete /api/category/delete_category
+func (c *DeleteCategory) Delete() {
+	token := c.Ctx.Request.Header.Get("token")
+	_, isAdmin := models.IsAdmin(token)
+	if isAdmin == false {
+		c.Data["json"] = models.Message{Code: 301, Result: "你不是超级管理员", Data: nil}
+		c.ServeJSON()
+	} else {
+		categoryId := c.GetString("categoryId")
+		category := models.Category{Uid: categoryId}
+		o := orm.NewOrm()
+		err := o.Read(&category, "Uid")
+		if err == orm.ErrNoRows {
+			c.Data["json"] = models.Message{Code: 200, Result: "没有这分类", Data: &category}
+			c.ServeJSON()
+		}
+		logs.Info(o.Delete(&category, "Uid"))
+		c.Data["json"] = models.Message{Code: 200, Result: "删除成功", Data: &category}
+		c.ServeJSON()
+	}
+}

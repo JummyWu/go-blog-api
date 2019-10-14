@@ -33,6 +33,20 @@ func (c *NewPost) Post() {
 		c.ServeJSON()
 	} else {
 		o := orm.NewOrm()
+		tid, err := c.GetInt("tid")
+		ta := models.Tag{Id: tid}
+		tagError := o.Read(&ta, "id")
+		if tagError == orm.ErrNoRows {
+			c.Data["json"] = models.Message{Code: 301, Result: "还没这个话题, 请先添加这个话题", Data: &ta}
+			c.ServeJSON()
+		}
+		categoryID := c.GetString("category_id")
+		categoryModel := models.Category{Uid: categoryID}
+		categoryError := o.Read(&categoryModel, "Uid")
+		if categoryError == orm.ErrNoRows {
+			c.Data["json"] = models.Message{Code: 301, Result: "没有这个分类, 请先添加这个分类", Data: &categoryModel}
+			c.ServeJSON()
+		}
 		title := c.GetString("title")
 		po := models.Post{Title: title}
 		error := o.Read(&po, "Title")
@@ -40,12 +54,12 @@ func (c *NewPost) Post() {
 			c.Data["json"] = models.Message{Code: 301, Result: "已经有这个文章", Data: &po}
 			c.ServeJSON()
 		}
-		tid, err := c.GetInt("tid")
+
 		desc := c.GetString("desc")
 		image := c.GetString("image")
 		content := c.GetString("content")
 		markdown := c.GetString("markdown")
-		category_id := c.GetString("category_id")
+
 		post := new(models.Post)
 		pid, err := uuid.NewV4()
 		if err != nil {
@@ -63,7 +77,7 @@ func (c *NewPost) Post() {
 		post.Likes = 0
 		post.Pv = 0
 		post.Time = time.Now()
-		post.CategoryId = category_id
+		post.CategoryId = categoryID
 		logs.Info(o.Insert(post))
 		var user models.User
 		var category models.Category
@@ -72,10 +86,10 @@ func (c *NewPost) Post() {
 		_, err = o.QueryTable("User").Filter("Uid", uid).All(&user)
 		userView := util.UserToViews(user)
 
-		_, err = o.QueryTable("Category").Filter("Uid", category_id).All(&category)
+		_, err = o.QueryTable("Category").Filter("Uid", categoryID).All(&category)
 		categoryView := util.CategoryToView(category, *userView)
 
-		_, err = o.QueryTable("Tag").Filter("Uid", tid).All(&tag)
+		_, err = o.QueryTable("Tag").Filter("Id", tid).All(&tag)
 		if err != nil {
 			logs.Info(err)
 		}

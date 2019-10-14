@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"go-blog-api/blog-api/models"
+	"go-blog-api/blog-api/util"
 	"strconv"
 	"time"
 
@@ -41,7 +42,14 @@ func (c *NewTag) Post() {
 		tag.UserId = uid
 		tag.Time = time.Now()
 		logs.Info(o.Insert(tag))
-		c.Data["json"] = models.Message{Code: 200, Result: "添加成功", Data: tag}
+		var user models.User
+		_, err := o.QueryTable("user").Filter("Uid", uid).All(&user)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		tagView := util.TagToView(*tag, *userView)
+		c.Data["json"] = models.Message{Code: 200, Result: "添加成功", Data: tagView}
 		c.ServeJSON()
 	}
 }
@@ -83,7 +91,16 @@ func (c *UpdateTag) Put() {
 		}
 		tag.Name = name
 		logs.Info(o.Update(&tag, "Name"))
-		c.Data["json"] = models.Message{Code: 200, Result: "修改成功", Data: tag}
+
+		var user models.User
+		_, err = o.QueryTable("user").Filter("Uid", tag.UserId).All(&user)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		tagView := util.TagToView(tag, *userView)
+
+		c.Data["json"] = models.Message{Code: 200, Result: "修改成功", Data: tagView}
 		c.ServeJSON()
 	}
 }
@@ -134,13 +151,24 @@ Get /api/tag_list
 */
 func (c *GetTagList) Get() {
 	o := orm.NewOrm()
-	var tag []*models.Tag
-	_, error := o.QueryTable("tag").OrderBy("Id").All(&tag)
+	var tags []*models.Tag
+	var tagViews []models.TagView
+	var user models.User
+	_, error := o.QueryTable("tag").OrderBy("Id").All(&tags)
 	if error == orm.ErrArgs {
 		c.Data["json"] = models.Message{Code: 200, Result: "没有分类", Data: nil}
 		c.ServeJSON()
 	}
-	c.Data["json"] = models.Message{Code: 200, Result: "ok", Data: tag}
+	for _, v := range tags {
+		_, err := o.QueryTable("user").Filter("Uid", v.UserId).All(&user)
+		if err != nil {
+			logs.Info(err)
+		}
+		userView := util.UserToViews(user)
+		tagView := util.TagToView(*v, *userView)
+		tagViews = append(tagViews, *tagView)
+	}
+	c.Data["json"] = models.Message{Code: 200, Result: "ok", Data: tagViews}
 	c.ServeJSON()
 }
 

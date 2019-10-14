@@ -52,11 +52,12 @@ func (c *LikesController) Post() {
 		url := c.GetString("hosturl")
 		body := c.GetString("body")
 		link := new(models.Links)
-		uid, err := uuid.NewV4()
+		uuid, err := uuid.NewV4()
 		if err != nil {
 			logs.Info(err)
 		}
-		link.Uid = uid.String()
+		uid := "like_" + uuid.String()
+		link.Uid = uid
 		link.Is = 0
 		link.Email = email
 		link.HostName = name

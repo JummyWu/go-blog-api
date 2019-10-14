@@ -51,7 +51,8 @@ func (c *NewPost) Post() {
 		if err != nil {
 			logs.Info(err)
 		}
-		post.Uid = pid.String()
+		puid := "post_" + pid.String()
+		post.Uid = puid
 		post.Title = title
 		post.Tid = tid
 		post.UserId = uid

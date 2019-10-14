@@ -27,6 +27,12 @@ func (c *NewCategory) Post() {
 	} else {
 		o := orm.NewOrm()
 		name := c.GetString("name")
+		ca := models.Category{Name: name}
+		error := o.Read(&ca, "Name")
+		if error != orm.ErrNoRows {
+			c.Data["json"] = models.Message{Code: 301, Result: "已经有这个分类", Data: &ca}
+			c.ServeJSON()
+		}
 		pid, err := uuid.NewV4()
 		if err != nil {
 			logs.Info(err)
@@ -73,6 +79,12 @@ func (c *UpdateCategory) Put() {
 			c.ServeJSON()
 		}
 		name := c.GetString("name")
+		ca := models.Category{Name: name}
+		error := o.Read(&ca, "Name")
+		if error == orm.ErrNoRows {
+			c.Data["json"] = models.Message{Code: 200, Result: "已经有这个分类的名字, 请重新编写分类名", Data: &category}
+			c.ServeJSON()
+		}
 		category.Name = name
 		logs.Info(o.Update(&category))
 

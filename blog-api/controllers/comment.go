@@ -47,6 +47,7 @@ func (c *CommentController) PostComment() {
 	if error != nil {
 		logs.Info(error)
 	}
+	cuid := "comment_" + uid.String()
 	body := c.GetString("body")
 	o := orm.NewOrm()
 	post := models.Post{Uid: pid}
@@ -56,7 +57,7 @@ func (c *CommentController) PostComment() {
 		c.ServeJSON()
 	}
 	comment := new(models.Comment)
-	comment.Uid = uid.String()
+	comment.Uid = cuid
 	comment.UserId = userID
 	comment.Body = body
 	comment.PostId = pid
@@ -98,9 +99,10 @@ func (c *CommentController) PostCommentReply() {
 	if err != nil {
 		logs.Info(err)
 	}
+	cuid := "comment_rely_" + uid.String()
 	body := c.GetString("body")
 	commentReply := new(models.CommentReply)
-	commentReply.Uid = uid.String()
+	commentReply.Uid = cuid
 	commentReply.Body = body
 	commentReply.UserId = userID
 	commentReply.Thumbs = 0
